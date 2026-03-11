@@ -3,18 +3,20 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { Nav } from '../layouts/nav/nav';
 import { AccountService } from '../core/services/account-service';
-import { Home } from '../features/home/home';
 import { User } from '../types/user';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [Nav, Home],
+  imports: [Nav, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App implements OnInit {
+  //removing all this stuff from here as no longer needed since we have did this setCurrentUser logic in initService and etc and i will remove in next commit
   private http = inject(HttpClient);
 
+  protected router = inject(Router);
   private accountService = inject(AccountService);
 
   protected readonly title = signal('Dating App');

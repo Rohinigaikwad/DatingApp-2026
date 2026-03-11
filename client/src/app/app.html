@@ -1,3 +1,9 @@
 <app-nav />
-
-<app-home />
+<!-- We can use NgClass here instaed of 3 lines but as per latest style guide NGClass is not recommended  -->
+<div 
+[class.mt-24]="router.url!=='/'"
+[class.container]="router.url!=='/'"
+[class.mx-auto]="router.url!=='/'"
+>
+    <router-outlet />
+</div>
