@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../environments/environment';
-import { AccountService } from './account-service';
 import { EditableMember, Member, Photo } from '../../types/member';
 import { tap } from 'rxjs';
 
@@ -32,5 +31,19 @@ export class MemberService {
 
   public updateMember(member: EditableMember) {
     return this.http.put(this.baseUrl + 'members', member);
+  }
+
+  public uploadPhoto(file:File){
+    const formData=new FormData();
+    formData.append('file',file);
+    return this.http.post<Photo>(this.baseUrl + 'members/add-photo', formData);
+  }
+
+  public setMainPhoto(photo:Photo){
+    return this.http.put(this.baseUrl + 'members/set-main-photo/' +photo.id,{} );
+  }
+
+   public deletePhoto(photoId:number){
+    return this.http.delete(this.baseUrl + 'members/delete-photo/' + photoId );
   }
 }
