@@ -18,12 +18,15 @@
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="DTOs\" />
-    <Folder Include="Entities\" />
     <Folder Include="Errors\" />
     <Folder Include="Extensions\" />
     <Folder Include="Interfaces\" />
     <Folder Include="Middlewares\" />
     <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Entities\MemberLike.cs" />
   </ItemGroup>
 
 </Project>
