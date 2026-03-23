@@ -1,5 +1,6 @@
 using API;
 using API.Data;
+using API.Helpers;
 using API.Interfaces;
 using API.Middlewares;
 using API.Services;
@@ -26,6 +27,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IPhotoService,PhotoService>();
 
 builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+
+builder.Services.AddScoped<LogUserActivity>();
 
 builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
