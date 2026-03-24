@@ -16,35 +16,66 @@ export class AccountService {
   public currentUser = signal<User | null>(null);
 
   public register(creds: RegisterCreds) {
-    return this.http.post<User>(this.baseUrl + 'account/register', creds).pipe(
+    return this.http.post<User>(this.baseUrl + 'account/register', creds,
+      {withCredentials:true}
+    ).pipe(
       tap(user => {
         if (user) {
           this.setCurrentUser(user);
+          this.startTokenRefreshInterval();
         }
       })
     )
   }
 
   public login(creds: LoginCreds) {
-    return this.http.post<User>(this.baseUrl + 'account/login', creds).pipe(
+    return this.http.post<User>(this.baseUrl + 'account/login', creds,
+      {withCredentials:true}
+    ).pipe(
       tap(user => {
         if (user) {
           this.setCurrentUser(user);
+          this.startTokenRefreshInterval();
         }
       })
     )
   }
 
   public setCurrentUser(user: User) {
-    localStorage.setItem('user', JSON.stringify(user));
-      this.likesService.getLikeIds();
-    this.currentUser.set(user);
+     user.roles = this.getRolesFromToken(user);
+     this.currentUser.set(user);  
+    this.likesService.getLikeIds();
   }
 
   public logout() {
-    localStorage.removeItem('user');
-     localStorage.removeItem('filters');
-       this.likesService.clearLikeIds();
+    localStorage.removeItem('filters');
+    this.likesService.clearLikeIds();
     this.currentUser.set(null);
+  }
+
+  private getRolesFromToken(user: User): string[] {
+    const payload = user.token.split('.')[1];
+    const decoded = atob(payload);
+    const jsonPayload = JSON.parse(decoded);
+    return Array.isArray(jsonPayload.role) ? jsonPayload.role : [jsonPayload.role]
+  }
+
+  public refreshToken(){
+    return this.http.post<User>(this.baseUrl + 'account/refresh-token',{},
+      {withCredentials:true});
+  }
+
+  public startTokenRefreshInterval() {
+    setInterval(() => {
+      this.http.post<User>(this.baseUrl + 'account/refresh-token', {}, 
+        {withCredentials: true}).subscribe({
+          next: user => {
+            this.setCurrentUser(user)
+          },
+          error: () => {
+            this.logout()
+          } 
+        })
+    }, 5 * 60 * 1000)
   }
 }

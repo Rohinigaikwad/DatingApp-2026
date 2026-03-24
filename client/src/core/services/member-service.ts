@@ -12,7 +12,7 @@ export class MemberService {
   private http = inject(HttpClient);
   private baseUrl = environment.apiUrl;
   public editMode = signal(false);
- public member =signal<Member | null>(null);
+  public member =signal<Member | null>(null);
 
   public getMembers(memberParams: MemberParams) {
     let params = new HttpParams();
