@@ -19,7 +19,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
-    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddCors();
@@ -77,8 +77,13 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-app.MapControllers();
+/**preparing for publishing app */
+app.UseDefaultFiles();
+app.UseStaticFiles();
+/**preparing for publishing app */
 
+app.MapControllers();
+app.MapFallbackToController("Index", "Fallback");
 using var scope = app.Services.CreateScope();
 var services= scope.ServiceProvider;
 try
