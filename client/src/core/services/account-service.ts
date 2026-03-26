@@ -6,51 +6,71 @@ import { environment } from '../../environments/environment';
 import { LikesService } from './likes-service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class AccountService {
   private http = inject(HttpClient);
- private likesService = inject(LikesService);
-  private baseUrl=environment.apiUrl;
- 
-  public currentUser = signal<User | null>(null);
+  private likesService = inject(LikesService);
+  currentUser = signal<User | null>(null);
+  private baseUrl = environment.apiUrl;
 
-  public register(creds: RegisterCreds) {
+  register(creds: RegisterCreds) {
     return this.http.post<User>(this.baseUrl + 'account/register', creds,
-      {withCredentials:true}
-    ).pipe(
-      tap(user => {
-        if (user) {
-          this.setCurrentUser(user);
-          this.startTokenRefreshInterval();
-        }
-      })
-    )
+      { withCredentials: true }).pipe(
+        tap(user => {
+          if (user) {
+            this.setCurrentUser(user);
+            this.startTokenRefreshInterval();
+          }
+        })
+      )
   }
 
-  public login(creds: LoginCreds) {
+  login(creds: LoginCreds) {
     return this.http.post<User>(this.baseUrl + 'account/login', creds,
-      {withCredentials:true}
-    ).pipe(
-      tap(user => {
-        if (user) {
-          this.setCurrentUser(user);
-          this.startTokenRefreshInterval();
-        }
-      })
-    )
+      { withCredentials: true }).pipe(
+        tap(user => {
+          if (user) {
+            this.setCurrentUser(user);
+            this.startTokenRefreshInterval();
+          }
+        })
+      )
   }
 
-  public setCurrentUser(user: User) {
-     user.roles = this.getRolesFromToken(user);
-     this.currentUser.set(user);  
+  refreshToken() {
+    return this.http.post<User>(this.baseUrl + 'account/refresh-token', {},
+      { withCredentials: true })
+  }
+
+  startTokenRefreshInterval() {
+    setInterval(() => {
+      this.http.post<User>(this.baseUrl + 'account/refresh-token', {},
+        { withCredentials: true }).subscribe({
+          next: user => {
+            this.setCurrentUser(user)
+          },
+          error: () => {
+            this.logout()
+          }
+        })
+    }, 5 * 60 * 1000)
+  }
+
+  setCurrentUser(user: User) {
+    user.roles = this.getRolesFromToken(user);
+    this.currentUser.set(user);
     this.likesService.getLikeIds();
   }
 
-  public logout() {
-    localStorage.removeItem('filters');
-    this.likesService.clearLikeIds();
-    this.currentUser.set(null);
+  logout() {
+    this.http.post(this.baseUrl + 'account/logout', {}, { withCredentials: true }).subscribe({
+      next: () => {
+        localStorage.removeItem('filters');
+        this.likesService.clearLikeIds();
+        this.currentUser.set(null);
+      }
+    })
   }
 
   private getRolesFromToken(user: User): string[] {
@@ -58,24 +78,5 @@ export class AccountService {
     const decoded = atob(payload);
     const jsonPayload = JSON.parse(decoded);
     return Array.isArray(jsonPayload.role) ? jsonPayload.role : [jsonPayload.role]
-  }
-
-  public refreshToken(){
-    return this.http.post<User>(this.baseUrl + 'account/refresh-token',{},
-      {withCredentials:true});
-  }
-
-  public startTokenRefreshInterval() {
-    setInterval(() => {
-      this.http.post<User>(this.baseUrl + 'account/refresh-token', {}, 
-        {withCredentials: true}).subscribe({
-          next: user => {
-            this.setCurrentUser(user)
-          },
-          error: () => {
-            this.logout()
-          } 
-        })
-    }, 5 * 60 * 1000)
   }
 }

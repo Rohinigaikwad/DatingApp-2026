@@ -16,6 +16,8 @@ public class AppDbContext(DbContextOptions options) : IdentityDbContext<AppUser>
     public DbSet<MemberLike> Likes { get; set; }
 
     public DbSet<Message> Messages { get; set; }
+   // public DbSet<Group> Groups { get; set; }
+   // public DbSet<Connection> Connections { get; set; }
 
    //for dateCoversion to localtime(actual utc time and that is not working currently without adding this)
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -62,8 +62,4 @@ public class LikesRepository(AppDbContext context) : ILikesRepository
         return await context.Likes.FindAsync(sourceMemberId, targetMemberId);
 
     }
-    public async Task<bool> SaveAllChanges()
-    {
-        return await context.SaveChangesAsync() > 0;
-    }
 }
