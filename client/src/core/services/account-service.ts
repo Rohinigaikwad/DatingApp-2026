@@ -48,7 +48,9 @@ export class AccountService {
       this.http.post<User>(this.baseUrl + 'account/refresh-token', {},
         { withCredentials: true }).subscribe({
           next: user => {
-            this.setCurrentUser(user)
+            if (user) {
+              this.setCurrentUser(user);
+            }
           },
           error: () => {
             this.logout()
@@ -58,6 +60,7 @@ export class AccountService {
   }
 
   setCurrentUser(user: User) {
+    if (!user) return;
     user.roles = this.getRolesFromToken(user);
     this.currentUser.set(user);
     this.likesService.getLikeIds();
@@ -74,6 +77,7 @@ export class AccountService {
   }
 
   private getRolesFromToken(user: User): string[] {
+    if (!user?.token) return [];
     const payload = user.token.split('.')[1];
     const decoded = atob(payload);
     const jsonPayload = JSON.parse(decoded);
