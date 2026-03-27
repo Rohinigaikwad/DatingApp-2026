@@ -10,8 +10,11 @@ import { LikesService } from './likes-service';
 })
 export class AccountService {
   private http = inject(HttpClient);
+ 
   private likesService = inject(LikesService);
+ 
   currentUser = signal<User | null>(null);
+ 
   private baseUrl = environment.apiUrl;
 
   register(creds: RegisterCreds) {

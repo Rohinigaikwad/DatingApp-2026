@@ -95,7 +95,7 @@ public class AccountController(UserManager<AppUser> userManager, ITokenService t
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = DateTime.UtcNow.AddDays(7)
         };
 
