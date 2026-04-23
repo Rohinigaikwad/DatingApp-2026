@@ -19,7 +19,14 @@ builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    // ── To switch back to SQL Server locally: ──────────────────────────────
+    // 1. Uncomment the line below
+    // 2. In appsettings.json rename "SqlServerConnection" → "DefaultConnection"
+    // 3. In API.csproj uncomment SqlServer package and comment out Sqlite package
+    // opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+    // ── SQLite (used for deployment — no external DB server needed) ─────────
+    opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 builder.Services.AddCors();
@@ -64,11 +71,16 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>(); //Exception Handling should be 1st middleware in the pipeline since if exceptin occures then it should handled by this midlleware and then proceed to next middleware
 
-app.UseCors(policy => policy
-.AllowAnyHeader()
-.AllowAnyMethod()
-.AllowCredentials()
-.WithOrigins("http://localhost:4200"));
+// In development, Angular dev-server runs on :4200 so we need CORS.
+// In production, Angular is served from wwwroot by this same process — same origin, no CORS needed.
+if (app.Environment.IsDevelopment())
+{
+    app.UseCors(policy => policy
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials()
+        .WithOrigins("http://localhost:4200"));
+}
 
 app.UseAuthentication();
 
